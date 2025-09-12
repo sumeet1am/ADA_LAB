@@ -11,7 +11,7 @@ int prims(int cost[50][50], int n)
     int edges = 0, min_cost = 0;
     int a = -1, b = -1, min;
 
-    visited[0] = 1; // start from vertex A
+    visited[0] = 1; // start from A
     opcount = 0;
 
     while (edges < n - 1)
@@ -23,11 +23,11 @@ int prims(int cost[50][50], int n)
             {
                 for (int j = 0; j < n; j++)
                 {
-                    // ✅ count only when we check a valid edge
-                    if (!visited[j])  
+                    // ✅ Count comparison only for visited → unvisited pairs
+                    if (!visited[j])
                     {
-                        opcount++; // only meaningful comparisons
-                        if (min > cost[i][j])
+                        opcount++;
+                        if (cost[i][j] < min)
                         {
                             min = cost[i][j];
                             a = i;
@@ -47,7 +47,7 @@ int prims(int cost[50][50], int n)
     return min_cost;
 }
 
-// ------------------- Tester Function -------------------
+// ------------------- Tester -------------------
 void tester()
 {
     int n, cost[50][50];
@@ -61,7 +61,7 @@ void tester()
         {
             scanf("%d", &cost[i][j]);
             if (cost[i][j] == 0)
-                cost[i][j] = 9999; // treat 0 as infinity
+                cost[i][j] = 9999;
         }
     }
 
@@ -71,7 +71,7 @@ void tester()
     printf("Operation Count (opcount): %d\n", opcount);
 }
 
-// ------------------- Plotter Function -------------------
+// ------------------- Plotter -------------------
 void plotter()
 {
     FILE *fp = fopen("prims.dat", "w");
@@ -83,7 +83,7 @@ void plotter()
 
     srand(time(NULL));
 
-    for (int n = 5; n <= 10; n++) // test for graphs of size 5 to 10
+    for (int n = 5; n <= 10; n++)
     {
         int cost[50][50];
         for (int i = 0; i < n; i++)
@@ -93,7 +93,7 @@ void plotter()
                 if (i == j)
                     cost[i][j] = 9999;
                 else
-                    cost[i][j] = rand() % 20 + 1; // random weights
+                    cost[i][j] = rand() % 20 + 1;
             }
         }
 
@@ -105,7 +105,7 @@ void plotter()
     printf("Plotter output saved to prims.dat\n");
 }
 
-// ------------------- Main Function -------------------
+// ------------------- Main -------------------
 int main()
 {
     int ch;

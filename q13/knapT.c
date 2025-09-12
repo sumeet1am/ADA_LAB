@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #define MAX 100
 
-int t[MAX][MAX], v[MAX], w[MAX], n, m, count = 0;
+int t[MAX][MAX], v[MAX], w[MAX], n, m, count;
 
 int max(int a, int b) {
     return (a > b) ? a : b;
@@ -27,18 +28,20 @@ int Knap() {
     return t[n][m];
 }
 
-// Tester: user input and solution display
+// Tester function
 void tester() {
     printf("Number of items: "); scanf("%d", &n);
     printf("Sack capacity: "); scanf("%d", &m);
     printf("Weight\tValue\n");
     for (int i = 0; i < n; i++) scanf("%d%d", &w[i], &v[i]);
 
-    printf("Max value: %d\n", Knap());
+    int maxValue = Knap();
+    printf("Max value: %d\n", maxValue);
 
     printf("DP Table:\n");
     for (int i = 0; i <= n; i++) {
-        for (int j = 0; j <= m; j++) printf("%d ", t[i][j]);
+        for (int j = 0; j <= m; j++)
+            printf("%d ", t[i][j]);
         printf("\n");
     }
 
@@ -53,10 +56,11 @@ void tester() {
     printf("\n");
 }
 
-// Plotter: random items, writes operation count to file
+// Plotter function
 void plotter() {
     FILE *f1 = fopen("Knap.txt", "w");
     srand(time(NULL));
+
     for (int iter = 1; iter <= 10; iter++) {
         n = iter * 2;
         m = iter * 5;
@@ -68,4 +72,18 @@ void plotter() {
         fprintf(f1, "%d\t%d\n", n, count);
     }
     fclose(f1);
+    printf("Plot data saved to Knap.txt\n");
+}
+
+// Main function
+int main() {
+    int choice;
+    printf("Enter your choice:\n1. Tester\n2. Plotter\n");
+    scanf("%d", &choice);
+
+    if (choice == 1) tester();
+    else if (choice == 2) plotter();
+    else printf("Invalid input\n");
+
+    return 0;
 }

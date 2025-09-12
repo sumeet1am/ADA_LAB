@@ -3,88 +3,75 @@
 
 int n, opcount = 0, top = -1;
 
-// DFS to detect cycle + build stack for topological sort
-int dfs(int mat[n][n], int *vis, int *recStack, int src, int *stack) {
-    vis[src] = 1;
-    recStack[src] = 1;
+int dfs(int mat[n][n], int vis[], int track[], int src, int stack[]) {
+    vis[src] = track[src] = 1;
 
-    for (int i = 0; i < n; i++) {
-        opcount++;
+    for (int i = 0; i < n; i++, opcount++) {
         if (mat[src][i]) {
-            // Back edge → cycle found
-            if (recStack[i]) return 1;
-            // Explore unvisited
-            if (!vis[i] && dfs(mat, vis, recStack, i, stack)) return 1;
+            if (track[i]) return 1;                // cycle found
+            if (!vis[i] && dfs(mat, vis, track, i, stack)) return 1;
         }
     }
 
-    stack[++top] = src;  // push to stack
-    recStack[src] = 0;   // backtrack
+    stack[++top] = src;
+    track[src] = 0;
     return 0;
 }
 
-// Check connectivity + return stack (NULL if cycle exists)
-int* topoSort(int mat[n][n]) {
-    int vis[n], recStack[n];
-    int *stack = (int*)malloc(n * sizeof(int));
+int* checkConnectivity(int mat[n][n]) {
+    int vis[n], track[n];
+    int *stack = malloc(n * sizeof(int));
 
-    for (int i = 0; i < n; i++) vis[i] = recStack[i] = 0;
+    for (int i = 0; i < n; i++) vis[i] = track[i] = 0;
 
-    for (int i = 0; i < n; i++) {
-        if (!vis[i] && dfs(mat, vis, recStack, i, stack)) {
-            free(stack);
-            return NULL;
-        }
-    }
+    for (int i = 0; i < n; i++)
+        if (!vis[i] && dfs(mat, vis, track, i, stack))
+            return NULL;   // cycle → not a DAG
+
     return stack;
 }
 
-// Manual tester (input graph + run topological sort)
 void tester() {
     printf("Enter number of vertices: ");
     scanf("%d", &n);
-    int mat[n][n];
+    int adj[n][n];
 
     printf("Enter adjacency matrix:\n");
     for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++)
-            scanf("%d", &mat[i][j]);
+            scanf("%d", &adj[i][j]);
 
-    int *stack = topoSort(mat);
+    int *stack = checkConnectivity(adj);
+
     if (!stack) {
-        printf("Cycle exists! Cannot perform topological sort.\n");
-        return;
+        printf("Cycle exists.. Cannot perform topological sorting!!!\n");
+        exit(0);
     }
 
-    printf("Topological Order:\n");
-    while (top >= 0) printf("%d ", stack[top--]);
+    printf("Topological sorting order:\n");
+    while (top != -1) printf("%d ", stack[top--]);
     free(stack);
 }
 
-// Auto plotter (best-case opcount for DAG)
 void plotter() {
-    FILE *f1 = fopen("bfsMatTopSort.txt", "w");
+    FILE *fp = fopen("bfsMatTopSort.txt", "w");
 
-    for (int k = 1; k <= 10; k++) {
-        n = k;
-        int mat[n][n];
-
-        // Fill adjacency matrix (upper triangular)
+    for (n = 1; n <= 10; n++) {
+        int adj[n][n];
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
-                mat[i][j] = (j > i);
+                adj[i][j] = (i < j);   // upper triangular edges
 
-        opcount = 0, top = -1;
-        topoSort(mat);
-        fprintf(f1, "%d\t%d\n", n, opcount);
+        opcount = 0; top = -1;
+        checkConnectivity(adj);
+        fprintf(fp, "%d\t%d\n", n, opcount);
     }
-
-    fclose(f1);
+    fclose(fp);
 }
 
 int main() {
     int choice;
-    printf("Enter\n1. Tester\n2. Plotter\nChoice: ");
+    printf("Enter\n1.Tester\n2.Plotter\n");
     scanf("%d", &choice);
 
     if (choice == 1) tester();

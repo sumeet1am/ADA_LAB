@@ -1,101 +1,73 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int n, indeg[20], queue[20], front = -1, rear = -1, opcount = 0;
+int n, indeg[20], opcount = 0, queue[20], front, rear;
 
-// BFS (Kahn's Algorithm) for Topological Sort
 int bfs(int mat[n][n]) {
-    int visited = 0;
+    int count = 0;
     front = rear = -1;
 
-    // push all vertices with indegree 0
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++)
         if (indeg[i] == 0) queue[++rear] = i;
-    }
 
     while (front != rear) {
-        int curr = queue[++front]; // pop front
-        visited++;
-
-        for (int i = 0; i < n; i++) {
-            opcount++;
-            if (mat[curr][i]) {
-                indeg[i]--;             // reduce indegree
-                if (indeg[i] == 0) {    // if no more incoming edges
-                    queue[++rear] = i;
-                }
-            }
-        }
+        int cur = queue[++front];
+        count++;
+        for (int i = 0; i < n; i++, opcount++)
+            if (mat[cur][i] && --indeg[i] == 0)
+                queue[++rear] = i;
     }
-
-    // if visited != n → cycle exists
-    return visited != n;
+    return count != n; // if not all processed → cycle
 }
 
-// Manual test
 void tester() {
     printf("Enter number of vertices: ");
     scanf("%d", &n);
-    int mat[n][n];
+    int adj[n][n];
 
-    // reset indegree
     for (int i = 0; i < n; i++) indeg[i] = 0;
 
     printf("Enter adjacency matrix:\n");
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++) {
-            scanf("%d", &mat[i][j]);
-            if (mat[i][j]) indeg[j]++; // calculate indegree
+            scanf("%d", &adj[i][j]);
+            if (adj[i][j]) indeg[j]++;
         }
+
+    if (bfs(adj)) {
+        printf("Cycle exists.. Cannot perform topological sorting!!!\n");
+        exit(0);
     }
 
-    if (bfs(mat)) {
-        printf("Cycle exists! Cannot perform topological sort.\n");
-    } else {
-        printf("Topological Order:\n");
-        for (int i = 0; i <= rear; i++) {
-            printf("%d ", queue[i]);
-        }
-    }
+    printf("Topological sorting order:\n");
+    for (int i = 0; i <= rear; i++) printf("%d ", queue[i]);
 }
 
-// Auto plotter for opcount analysis
 void plotter() {
-    FILE *f1 = fopen("srcrmMatTopSort.txt", "w");
+    FILE *fp = fopen("srcrmMatTopSort.txt", "w");
 
-    for (int k = 1; k <= 10; k++) {
-        n = k;
-        int mat[n][n];
-
-        // reset indegree and adjacency
+    for (n = 1; n <= 10; n++) {
+        int adj[n][n];
         for (int i = 0; i < n; i++) indeg[i] = 0;
+
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
-                mat[i][j] = 0;
-
-        // create upper triangular DAG
-        for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
-                mat[i][j] = 1;
-                indeg[j]++;
-            }
-        }
+                adj[i][j] = (i < j ? (indeg[j]++, 1) : 0);
 
         opcount = 0;
-        bfs(mat);
-        fprintf(f1, "%d\t%d\n", n, opcount);
+        bfs(adj);
+        fprintf(fp, "%d\t%d\n", n, opcount);
     }
-
-    fclose(f1);
+    fclose(fp);
 }
 
 int main() {
-    int choice;
-    printf("Enter\n1. Tester\n2. Plotter\nChoice: ");
-    scanf("%d", &choice);
+    int ch;
+    printf("Enter\n1.Tester\n2.Plotter\n");
+    scanf("%d", &ch);
 
-    if (choice == 1) tester();
-    else if (choice == 2) plotter();
+    if (ch == 1) tester();
+    else if (ch == 2) plotter();
     else printf("Invalid choice\n");
 
     return 0;

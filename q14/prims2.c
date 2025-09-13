@@ -23,7 +23,7 @@ int prims(int cost[50][50], int n)
             {
                 for (int j = 0; j < n; j++)
                 {
-                    // ✅ Count comparison only for visited → unvisited pairs
+                    //  Count comparison only for visited → unvisited pairs
                     if (!visited[j])
                     {
                         opcount++;
